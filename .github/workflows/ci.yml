@@ -2,13 +2,14 @@ name: CI
 
 on:
   pull_request:
-  push:
+  # push:
 
 jobs:
   test:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] # enough for now. save $$
+        # os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3

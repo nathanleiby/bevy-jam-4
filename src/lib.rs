@@ -3,9 +3,12 @@
 mod actions;
 mod audio;
 mod config;
+mod fps;
 mod goo;
 mod loading;
+mod marbles;
 mod menu;
+mod pause;
 mod player;
 
 use crate::actions::ActionsPlugin;
@@ -18,7 +21,9 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy_xpbd_2d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
 use goo::GooPlugin;
+use marbles::MarblesPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -44,12 +49,17 @@ impl Plugin for GamePlugin {
             ActionsPlugin,
             InternalAudioPlugin,
             PlayerPlugin,
+            PhysicsPlugins::default(),
             GooPlugin,
+            MarblesPlugin,
         ));
 
-        #[cfg(debug_assertions)]
-        {
-            app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
-        }
+        // TODO: re-enable for moar debuggin
+        // #[cfg(debug_assertions)]
+        // {
+        //     app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
+        // }
+
+        app.add_plugins(PhysicsDebugPlugin::default());
     }
 }

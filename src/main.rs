@@ -27,6 +27,7 @@ fn main() {
             }),
             ..default()
         }))
+        // .insert_resource(Game::) // TODO: explore booting directly into GameState -- or otherwise writing code to simulate immediate click. need to make sure everything loaded 1st
         .add_plugins(GamePlugin)
         .add_plugins(WorldInspectorPlugin::new())
         // .add_systems(Startup, set_window_icon)

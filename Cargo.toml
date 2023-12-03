@@ -63,6 +63,7 @@ webbrowser = { version = "0.8", features = ["hardened"] }
 winit = { version = "0.28.7", default-features = false }
 image = { version = "0.24", default-features = false }
 bevy-inspector-egui = "0.21.0"
+bevy_xpbd_2d = "0.3.2"
 
 [build-dependencies]
 embed-resource = "1.4"

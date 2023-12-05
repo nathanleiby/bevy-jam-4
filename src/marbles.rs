@@ -29,7 +29,9 @@ impl Plugin for MarblesPlugin {
 }
 
 #[derive(Component)]
-struct Marble;
+struct Marble {
+    is_player_controlled: bool,
+}
 
 #[derive(Component)]
 struct MarbleConnections {
@@ -124,7 +126,8 @@ fn setup(
                 RigidBody::Dynamic,
                 Collider::ball(MARBLE_RADIUS as Scalar),
                 Marble {
-                    // connections: vec![],
+                    // start with just one marble that's player controlled
+                    is_player_controlled: x == -marble_scale && y == -marble_scale,
                 },
                 Name::new("marble"),
             ));
@@ -178,7 +181,7 @@ fn setup(
 fn movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut marbles: Query<&mut LinearVelocity, With<Marble>>,
+    mut query: Query<(&Marble, &mut LinearVelocity), With<Marble>>,
 ) {
     // TODO: Only move marbles that are connected to player
 
@@ -186,7 +189,11 @@ fn movement(
     // both the `f32` and `f64` features. Otherwise you don't need this.
     let delta_time = time.delta_seconds_f64().adjust_precision();
 
-    for mut linear_velocity in &mut marbles {
+    for (marble, mut linear_velocity) in query.iter_mut() {
+        if !marble.is_player_controlled {
+            continue;
+        }
+
         if keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]) {
             // Use a higher acceleration for upwards movement to overcome gravity
             linear_velocity.y += 2500.0 * delta_time;
@@ -214,22 +221,32 @@ fn movement(
 
 // let merge_table: HashMap<(usize, usize), bool> = HashMap::new();
 
-// mut merges = HashSet::new();
-
 #[derive(Event, Debug)]
 struct MergeEvent(Entity, Entity);
 
-// TODO: Should we do this during the physics timestamp instead, if it depends on Collision events and mutates the physics world?
 fn merge(
     mut collision_event_reader: EventReader<Collision>,
     mut marble_connections: Query<&mut MarbleConnections>,
+    query: Query<Entity, With<Marble>>,
     mut merge_events: EventWriter<MergeEvent>,
 ) {
     let mut connection = marble_connections.single_mut();
 
+    let mut marbleEntityIDs: HashSet<u32> = HashSet::new();
+    for entity in query.iter() {
+        marbleEntityIDs.insert(entity.index());
+    }
+
+    // let mut marble_entities: HashMap<u32, Entity> = HashMap::new();
     for Collision(contacts) in collision_event_reader.read() {
         let id1 = contacts.entity1.index();
         let id2 = contacts.entity2.index();
+
+        // check if id1 and id2 are both marbles
+        if !marbleEntityIDs.contains(&id1) || !marbleEntityIDs.contains(&id2) {
+            continue;
+        }
+
         // insert with lower ID pointing to higher ID
         let (lower, upper) = if id1 < id2 { (id1, id2) } else { (id2, id1) };
 
@@ -244,12 +261,13 @@ fn handle_merge_events(
     mut merge_events: EventReader<MergeEvent>,
     mut commands: Commands,
     // mut marble_connections: Query<&mut MarbleConnections>,
-    mut query: Query<(Entity, &mut Handle<ColorMaterial>), With<Marble>>,
+    mut query: Query<(Entity, &mut Marble, &mut Handle<ColorMaterial>), With<Marble>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
     for ev in merge_events.read() {
         eprintln!("Entities merged: {:?}", ev);
+
         commands.spawn(
             FixedJoint::new(ev.0, ev.1).with_compliance(0.0001),
             // with_compliance seems necessary to have a stable physics simulation.
@@ -257,12 +275,14 @@ fn handle_merge_events(
         );
 
         // Look for a matching marble from the query
-        for (entity, mut material) in query.iter_mut() {
+        for (entity, mut marble, mut material) in query.iter_mut() {
             if entity == ev.0 {
                 *material = marble_material_green.clone();
+                marble.is_player_controlled = true;
             }
             if entity == ev.1 {
                 *material = marble_material_green.clone();
+                marble.is_player_controlled = true;
             }
         }
     }

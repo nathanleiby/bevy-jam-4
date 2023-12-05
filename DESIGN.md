@@ -17,6 +17,9 @@ goo is nice and abstract.
 Gameplay accident: attaching to the wall gives a "floppy spider web" experience.
 See screenshot.
 
+Might every cell be independent, but some can overwhelm others?
+How to determine who overwhelms?
+
 CHAT GPT weirdness:
 Accidents happen in the lab. You are a scientist, and you've accidentally spilled some goo on the floor.
 You must clean it up before it gets out of control!

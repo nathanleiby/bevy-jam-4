@@ -15,13 +15,16 @@ pub struct MarblesPlugin;
 impl Plugin for MarblesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((PausePlugin, FpsPlugin))
+            .add_event::<MergeEvent>()
             .insert_resource(ClearColor(Color::rgb(0.05, 0.05, 0.1)))
             .insert_resource(SubstepCount(6))
-            .insert_resource(Gravity(Vector::NEG_Y * 1000.0))
+            // .insert_resource(Gravity(Vector::NEG_Y * 1000.0))
+            .insert_resource(Gravity(Vector::ZERO))
             .add_systems(Startup, setup)
             .add_systems(Update, movement)
             // .add_systems(Update, print_collisions)
-            .add_systems(FixedUpdate, merge_marbles);
+            .add_systems(FixedUpdate, merge)
+            .add_systems(FixedUpdate, handle_merge_events);
     }
 }
 
@@ -30,7 +33,8 @@ struct Marble;
 
 #[derive(Component)]
 struct MarbleConnections {
-    connections2: HashMap<u32, u32>,
+    // TODO: Should we use a HashSet instead?
+    connections: HashSet<(u32, u32)>,
 }
 
 const MARBLE_RADIUS: f32 = 5.0;
@@ -157,7 +161,7 @@ fn setup(
 
     // TODO: Is this a good way to track this state?
     commands.spawn(MarbleConnections {
-        connections2: HashMap::new(),
+        connections: HashSet::new(),
     });
 }
 
@@ -176,6 +180,8 @@ fn movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut marbles: Query<&mut LinearVelocity, With<Marble>>,
 ) {
+    // TODO: Only move marbles that are connected to player
+
     // Precision is adjusted so that the example works with
     // both the `f32` and `f64` features. Otherwise you don't need this.
     let delta_time = time.delta_seconds_f64().adjust_precision();
@@ -210,22 +216,16 @@ fn movement(
 
 // mut merges = HashSet::new();
 
+#[derive(Event, Debug)]
+struct MergeEvent(Entity, Entity);
+
 // TODO: Should we do this during the physics timestamp instead, if it depends on Collision events and mutates the physics world?
-fn merge_marbles(
-    mut commands: Commands,
+fn merge(
     mut collision_event_reader: EventReader<Collision>,
     mut marble_connections: Query<&mut MarbleConnections>,
-    mut query: Query<(Entity, &Transform), With<Marble>>,
+    mut merge_events: EventWriter<MergeEvent>,
 ) {
-    // TODO: reactive
-    // return;
-
     let mut connection = marble_connections.single_mut();
-
-    let mut marble_entities: HashMap<u32, &Transform> = HashMap::new();
-    for (entity, transform) in query.iter() {
-        marble_entities.insert(entity.index(), transform);
-    }
 
     for Collision(contacts) in collision_event_reader.read() {
         let id1 = contacts.entity1.index();
@@ -233,37 +233,55 @@ fn merge_marbles(
         // insert with lower ID pointing to higher ID
         let (lower, upper) = if id1 < id2 { (id1, id2) } else { (id2, id1) };
 
-        if let Some(val) = connection.connections2.get(&lower) {
-            if *val == upper {
-                return;
-            }
+        let newly_added = connection.connections.insert((lower, upper));
+        if newly_added {
+            merge_events.send(MergeEvent(contacts.entity1, contacts.entity2));
         }
-
-        // let epsilon = 0.; // TODO: should we use?
-        // let object1radius = marble_radius;
-        // let object2radius = marble_radius;
-        // let offset = object1radius + object2radius + epsilon;
-
-        if let Some(e1) = marble_entities.get(&id1) {
-            if let Some(e2) = marble_entities.get(&id2) {
-                connection.connections2.insert(lower, upper);
-
-                let midpoint = (e1.translation + e2.translation) / 2.;
-                commands.spawn(
-                    FixedJoint::new(contacts.entity1, contacts.entity2).with_compliance(0.005), // this seems necessary to have a stable physics simulation. Otherwise things go FLYING off screen
-                );
-
-                println!(
-                    "Merging {:?} ({:?}) and {:?} ({:?})",
-                    contacts.entity1, id1, contacts.entity2, id2
-                );
-            }
-        }
-
-        // TODO: Update the color of entity2
-        // commands.get_entity(entity2);
-        // contacts.entity2.get
-
-        // break; // TODO: for debugging exploration.. merge at most one per timestep (concern: how does Physics timestep align with commands running?)
     }
+}
+
+fn handle_merge_events(
+    mut merge_events: EventReader<MergeEvent>,
+    mut commands: Commands,
+    // mut marble_connections: Query<&mut MarbleConnections>,
+    mut query: Query<(Entity, &mut Handle<ColorMaterial>), With<Marble>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
+    for ev in merge_events.read() {
+        eprintln!("Entities merged: {:?}", ev);
+        commands.spawn(
+            FixedJoint::new(ev.0, ev.1).with_compliance(0.0001),
+            // with_compliance seems necessary to have a stable physics simulation.
+            // Otherwise things go FLYING off screen
+        );
+
+        // Look for a matching marble from the query
+        for (entity, mut material) in query.iter_mut() {
+            if entity == ev.0 {
+                *material = marble_material_green.clone();
+            }
+            if entity == ev.1 {
+                *material = marble_material_green.clone();
+            }
+        }
+    }
+
+    //     //         if let Some(e1) = marble_entities.get(&id1) {
+    //     //             if let Some(e2) = marble_entities.get(&id2) {
+    //     //                 connection.connections2.insert(lower, upper);
+
+    //     //                 let marble_material_green =
+    //     //                     materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
+    //     //                 for (entity, _, mut material) in query2.iter_mut() {
+    //     //                     if entity.index() == id1 || entity.index() == id2 {
+    //     //                         *material = marble_material_green.clone();
+    //     //                     }
+    //     //                 }
+    //     //                 println!(
+    //     //                     "Merging {:?} ({:?}) and {:?} ({:?})",
+    //     //                     contacts.entity1, id1, contacts.entity2, id2
+    //     //                 );
+    //     //             }
+    //     //         }
 }

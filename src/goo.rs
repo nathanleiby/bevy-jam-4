@@ -46,7 +46,7 @@ fn spawn_goo(
 
     // let x = rand::random::<f32>() * SCREEN_WIDTH;
     let x = 0.; // Debugging accretion
-    let y = 0.; // SCREEN_HEIGHT / 2.;
+    let y = 300.;
     let radius = rand::random::<f32>() * (RADIUS_MAX - RADIUS_MIN) + RADIUS_MIN;
 
     commands.spawn((

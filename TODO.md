@@ -2,7 +2,7 @@
 
 ## sooner
 
-- Get Win/loss conditions working
+- Get Win/loss conditions working via simplest level "push one orb to the goal"
   - [ ] game over: no active player orbs
     - [ ] player health? Or just number of remaining orbs
   - [ ] game win: push N purple balls into the goal area(s)
@@ -29,8 +29,16 @@
 
 ### Game (non-Mechanics)
 
+- tutorial and MVP of "level" support (series of quick examples to teach you concepts)
+  - push one purple ball to goal
+  - push a big (heavy) purple ball to the goal. (you're small! accrete goo to make it easier)
+  - don't die (red goo hurts)
 - Run WASM build
-- add gamepad support
+- [..] add gamepad support
+
+###
+
+- the Goo balls are shaking up and down. I didn't notice when focused on player. is it physics glitching?
 
 ### Learning Bevy
 

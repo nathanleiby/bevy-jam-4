@@ -21,7 +21,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-const PLAYER_RADIUS: f32 = 50.0;
+const PLAYER_RADIUS: f32 = 25.0;
 
 fn spawn_player(
     mut commands: Commands,
@@ -30,7 +30,7 @@ fn spawn_player(
 ) {
     let mesh = meshes.add(shape::Circle::new(PLAYER_RADIUS).into());
     let material = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.9, 0.9)));
-    let spawn_position = Vec2::new(100., 100.0);
+    let spawn_position = Vec2::new(-300., 0.);
     commands
         .spawn((
             MaterialMesh2dBundle {

@@ -19,36 +19,39 @@ struct ConstructionGoo {}
 
 const CONSTRUCTION_GOO_RADIUS: f32 = 3.0;
 
-fn setup(
-    mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-) {
-    let marble_mesh = meshes.add(shape::Circle::new(CONSTRUCTION_GOO_RADIUS).into());
-    let material_red = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.1, 0.1)));
+// pub fn ConstructionGooBundle(
+//     mut materials: ResMut<Assets<ColorMaterial>>,
+//     mut meshes: ResMut<Assets<Mesh>>,
+// ) -> Bundle {
+//     let marble_mesh = meshes.add(shape::Circle::new(CONSTRUCTION_GOO_RADIUS).into());
+//     let material_red = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.1, 0.1)));
 
-    let marble_scale = 10;
-    // Spawn stacks of marbles
-    for x in -marble_scale..marble_scale {
-        for y in -marble_scale..marble_scale {
-            commands.spawn((
-                MaterialMesh2dBundle {
-                    mesh: marble_mesh.clone().into(),
-                    material: material_red.clone(),
-                    transform: Transform::from_xyz(
-                        x as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS,
-                        y as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS + 100.,
-                        0.0,
-                    ),
-                    ..default()
-                },
-                RigidBody::Dynamic,
-                Collider::ball(CONSTRUCTION_GOO_RADIUS as Scalar),
-                ConstructionGoo {},
-                Name::new("Construction Goo"),
-            ));
-        }
-    }
+//     let marble_scale = 10;
+
+//     return (
+//         MaterialMesh2dBundle {
+//             mesh: marble_mesh.clone().into(),
+//             material: material_red.clone(),
+//             transform: Transform::from_xyz(
+//                 x as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS,
+//                 y as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS + 100.,
+//                 0.0,
+//             ),
+//             ..default()
+//         },
+//         RigidBody::Dynamic,
+//         Collider::ball(CONSTRUCTION_GOO_RADIUS as Scalar),
+//         ConstructionGoo {},
+//         Name::new("Construction Goo"),
+//     );
+// }
+fn setup(mut commands: Commands) {
+    // // Spawn stacks of marbles
+    // for x in -marble_scale..marble_scale {
+    //     for y in -marble_scale..marble_scale {
+    //         commands.spawn();
+    //     }
+    // }
 }
 
 fn collide_and_maybe_merge(

@@ -34,22 +34,22 @@ fn setup(
     // Spawn stacks of marbles
     for x in -marble_scale..marble_scale {
         for y in -marble_scale..marble_scale {
-            commands.spawn((
-                MaterialMesh2dBundle {
-                    mesh: marble_mesh.clone().into(),
-                    material: material_red.clone(),
-                    transform: Transform::from_xyz(
-                        x as f32 * 2.5 * DESTRUCTION_GOO_RADIUS,
-                        y as f32 * 2.5 * DESTRUCTION_GOO_RADIUS + 100.,
-                        0.0,
-                    ),
-                    ..default()
-                },
-                RigidBody::Dynamic,
-                Collider::ball(DESTRUCTION_GOO_RADIUS as Scalar),
-                DestructionGoo {},
-                Name::new("Destruction Goo"),
-            ));
+            // commands.spawn((
+            //     MaterialMesh2dBundle {
+            //         mesh: marble_mesh.clone().into(),
+            //         material: material_red.clone(),
+            //         transform: Transform::from_xyz(
+            //             x as f32 * 2.5 * DESTRUCTION_GOO_RADIUS,
+            //             y as f32 * 2.5 * DESTRUCTION_GOO_RADIUS + 100.,
+            //             0.0,
+            //         ),
+            //         ..default()
+            //     },
+            //     RigidBody::Dynamic,
+            //     Collider::ball(DESTRUCTION_GOO_RADIUS as Scalar),
+            //     DestructionGoo {},
+            //     Name::new("Destruction Goo"),
+            // ));
         }
     }
 }

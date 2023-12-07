@@ -61,6 +61,6 @@ idea: temporary buffs, like N seconds of invincibility (plow through destruction
 
 --
 
-some "wind" would be cool to keep the environment a bit more lively.
+some "wind" would be cool to keep the environment a bit more lively. (could simulate this with gravity changing directions? could spin the level?)
 should spawn purple Goo from various directions to make it more interesting.
 periodic "Goo Storm" warning that spawns a bunch of goo in increases the wind?? so you have to make it through that.

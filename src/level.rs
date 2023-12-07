@@ -4,7 +4,8 @@ use bevy_xpbd_2d::prelude::*;
 pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app.add_systems(Startup, setup)
+            .add_systems(Startup, bootstrap_level);
     }
 }
 
@@ -82,3 +83,5 @@ fn setup(mut commands: Commands) {
         Goal {},
     ));
 }
+
+fn bootstrap_level() {}

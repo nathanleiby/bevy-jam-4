@@ -1,7 +1,10 @@
 use crate::actions::Actions;
 use crate::loading::TextureAssets;
+use crate::marbles::Marble;
 use crate::GameState;
 use bevy::prelude::*;
+use bevy_xpbd_2d::components::LinearVelocity;
+use bevy_xpbd_2d::math::AdjustPrecision;
 
 pub struct PlayerPlugin;
 
@@ -30,22 +33,28 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
         .insert(Player);
 }
 
-const SPEED: f32 = 150.;
+const SPEED: f32 = 2000.0; // 500 to 2500
 
 fn move_player(
     time: Res<Time>,
     actions: Res<Actions>,
-    mut player_query: Query<&mut Transform, With<Player>>,
+    mut query: Query<(&Marble, &mut LinearVelocity), With<Marble>>,
 ) {
     if actions.player_movement.is_none() {
         return;
     }
-    let movement = Vec3::new(
-        actions.player_movement.unwrap().x * SPEED * time.delta_seconds(),
-        actions.player_movement.unwrap().y * SPEED * time.delta_seconds(),
-        0.,
-    );
-    for mut player_transform in &mut player_query {
-        player_transform.translation += movement;
+
+    // Precision is adjusted so that the example works with
+    // both the `f32` and `f64` features. Otherwise you don't need this.
+    let delta_time = time.delta_seconds_f64().adjust_precision();
+    let delta_x = actions.player_movement.unwrap().x * SPEED * delta_time;
+    let delta_y = actions.player_movement.unwrap().y * SPEED * delta_time;
+
+    for (marble, mut linear_velocity) in query.iter_mut() {
+        if !marble.is_player_controlled {
+            continue;
+        }
+        linear_velocity.x += delta_x;
+        linear_velocity.y += delta_y;
     }
 }

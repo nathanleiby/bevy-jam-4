@@ -15,7 +15,7 @@ impl Plugin for MarblesPlugin {
             .insert_resource(SubstepCount(6))
             .insert_resource(Gravity(Vector::ZERO))
             .add_systems(Startup, setup)
-            .add_systems(Update, movement)
+            // .add_systems(Update, movement)
             // .add_systems(Update, print_collisions)
             .add_systems(FixedUpdate, merge)
             .add_systems(FixedUpdate, handle_merge_events);
@@ -24,7 +24,7 @@ impl Plugin for MarblesPlugin {
 
 #[derive(Component)]
 pub struct Marble {
-    is_player_controlled: bool,
+    pub is_player_controlled: bool,
 }
 
 #[derive(Component)]
@@ -82,36 +82,6 @@ fn setup(
     commands.spawn(MarbleConnections {
         connections: HashSet::new(),
     });
-}
-
-fn movement(
-    time: Res<Time>,
-    keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&Marble, &mut LinearVelocity), With<Marble>>,
-) {
-    // Precision is adjusted so that the example works with
-    // both the `f32` and `f64` features. Otherwise you don't need this.
-    let delta_time = time.delta_seconds_f64().adjust_precision();
-
-    for (marble, mut linear_velocity) in query.iter_mut() {
-        if !marble.is_player_controlled {
-            continue;
-        }
-
-        if keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]) {
-            // Use a higher acceleration for upwards movement to overcome gravity
-            linear_velocity.y += 2500.0 * delta_time;
-        }
-        if keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]) {
-            linear_velocity.y -= 500.0 * delta_time;
-        }
-        if keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]) {
-            linear_velocity.x -= 500.0 * delta_time;
-        }
-        if keyboard_input.any_pressed([KeyCode::D, KeyCode::Right]) {
-            linear_velocity.x += 500.0 * delta_time;
-        }
-    }
 }
 
 #[derive(Event, Debug)]

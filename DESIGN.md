@@ -47,3 +47,8 @@ Entity counter in one corner
 
 goo radius corresponds to armor/damage amount? (e.g. hit a big goo with a small goo and it shrinks)
 Instead try: many small Goos. Big goo IS many small goos, and numbers could work out.
+
+--
+
+accident: goo was carrying one of the purple balls - maybe objective is to push / shepherd objects around?
+seems fun with the physics. Fixed Joints maybe could be more like webs/nets

@@ -21,8 +21,7 @@ use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
 
 use bevy::app::App;
-#[cfg(debug_assertions)]
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+
 use bevy::prelude::*;
 use bevy_xpbd_2d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
 use construction::ConstructionPlugin;

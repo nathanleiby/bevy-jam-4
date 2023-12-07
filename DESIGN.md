@@ -58,3 +58,9 @@ so you can wrap around target ball, or fling it more.
 maybe interesting physics applies to objects in env, rather than goo? so you could shepherd push a ball into a trampoline to shoot it into the "goal"
 
 idea: temporary buffs, like N seconds of invincibility (plow through destruction orbs!), increased speed, etc
+
+--
+
+some "wind" would be cool to keep the environment a bit more lively.
+should spawn purple Goo from various directions to make it more interesting.
+periodic "Goo Storm" warning that spawns a bunch of goo in increases the wind?? so you have to make it through that.

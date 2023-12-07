@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle, utils::HashSet};
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
-use crate::{level::Goal, marbles::Marble, score::ScoreValue, GameState};
+use crate::{level::Goal, marbles::Marble, score::ScoreEvent, GameState};
 
 // TODO: make this sort of param configurable from EGUI .. can I add some flags? or does it need to existing in Bevy land (like a Resource)?
 const SPEED: f32 = 150.;
@@ -71,11 +71,10 @@ fn spawn_goo(
 fn score(
     mut commands: Commands,
     mut collision_event_reader: EventReader<Collision>,
+    mut score_event_writer: EventWriter<ScoreEvent>,
 
     query_goo: Query<Entity, With<Goo>>,
     query_goal: Query<Entity, With<Goal>>,
-
-    mut score: ResMut<ScoreValue>,
 ) {
     let mut goo_entity_ids: HashSet<u32> = HashSet::new();
     for entity in query_goo.iter() {
@@ -100,8 +99,7 @@ fn score(
         if goo_entity_ids.contains(&id1) && id2 == goal_entity_id
             || goo_entity_ids.contains(&id2) && id1 == goal_entity_id
         {
-            info!("Score!");
-            score.0 += 1;
+            score_event_writer.send(ScoreEvent(1));
             if id1 == goal_entity_id {
                 commands.entity(contacts.entity2).despawn_recursive();
             } else {

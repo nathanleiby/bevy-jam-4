@@ -4,12 +4,12 @@ use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorO
 
 pub struct ScorePlugin;
 
-/// This plugin is responsible for the game menu (containing only one button...)
-/// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
+/// Keeps track of the score and draws the Scoreboard.
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource::<ScoreValue>(ScoreValue(0))
             .register_type::<ScoreValue>() // for bevy-inspector-egui
+            .add_event::<ScoreEvent>()
             .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(
                 Update,
@@ -22,11 +22,13 @@ impl Plugin for ScorePlugin {
 #[reflect(Resource, InspectorOptions)]
 pub struct ScoreValue(pub usize);
 
+#[derive(Event, Debug)]
+pub struct ScoreEvent(pub usize); // points
+
 #[derive(Component)]
 struct Scoreboard;
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
     commands.spawn((
         Scoreboard,
         Name::new("Scoreboard"),
@@ -66,23 +68,17 @@ fn setup(mut commands: Commands) {
             ..default()
         },
     ));
-    // .with_children(|parent| {
-    //     parent.spawn(TextBundle::from_section(
-    //         "Score: 0",
-    //         TextStyle {
-    //             font_size: 15.0,
-    //             color: Color::rgb(0.9, 0.9, 0.9),
-    //             ..default()
-    //         },
-    //     ));
-    // });
 }
 
-fn update_scoreboard_text(score: Res<ScoreValue>, mut query: Query<&mut Text, With<Scoreboard>>) {
-    for mut text in &mut query {
-        {
-            let val = score.0;
-            text.sections[1].value = format!("{val:>4.0}");
-        }
+fn update_scoreboard_text(
+    mut score_event_reader: EventReader<ScoreEvent>,
+    mut score: ResMut<ScoreValue>,
+    mut query: Query<&mut Text, With<Scoreboard>>,
+) {
+    let mut text = query.single_mut();
+    for ev in score_event_reader.read() {
+        score.0 += ev.0;
+        let val = score.0;
+        text.sections[1].value = format!("{val:>4.0}");
     }
 }

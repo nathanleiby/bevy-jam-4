@@ -21,6 +21,7 @@ fn setup(mut commands: Commands) {
 
     // Ceiling
     commands.spawn((
+        Name::new("Wall:ceiling"),
         SpriteBundle {
             sprite: square_sprite.clone(),
             transform: Transform::from_xyz(0.0, 50.0 * 6.0, 0.0)
@@ -32,6 +33,7 @@ fn setup(mut commands: Commands) {
     ));
     // Floor
     commands.spawn((
+        Name::new("Wall:floor"),
         SpriteBundle {
             sprite: square_sprite.clone(),
             transform: Transform::from_xyz(0.0, -50.0 * 6.0, 0.0)
@@ -43,6 +45,7 @@ fn setup(mut commands: Commands) {
     ));
     // Left wall
     commands.spawn((
+        Name::new("Wall:left"),
         SpriteBundle {
             sprite: square_sprite.clone(),
             transform: Transform::from_xyz(-50.0 * 9.5, 0.0, 0.0)
@@ -54,6 +57,7 @@ fn setup(mut commands: Commands) {
     ));
     // Right wall
     commands.spawn((
+        Name::new("Wall:right"),
         SpriteBundle {
             sprite: square_sprite,
             transform: Transform::from_xyz(50.0 * 9.5, 0.0, 0.0)
@@ -72,6 +76,7 @@ fn setup(mut commands: Commands) {
 
     // right goal
     commands.spawn((
+        Name::new("Goal:right"),
         SpriteBundle {
             sprite: goal_sprite.clone(),
             transform: Transform::from_xyz(50.0 * 9.5, 0.0, 0.0)
@@ -83,5 +88,26 @@ fn setup(mut commands: Commands) {
         Goal {},
     ));
 }
+
+// TODO: draw a grid on top of 2d UI, for debugging. e.g. so i can easily figure out 100px offsets
+// fn debug_grid(
+//     mut commands: Commands,
+//     meshes: ResMut<Assets<Mesh>>,
+//     materials: ResMut<Assets<ColorMaterial>>,
+// ) {
+//     let purple = materials.add(ColorMaterial::from(Color::PURPLE));
+
+//     commands.spawn(MaterialMeshBundle {
+//         mesh: meshes.add(Mesh::from(LineList {
+//             lines: vec![
+//                 (Vec3::ZERO, Vec3::new(1.0, 1.0, 0.0)),
+//                 (Vec3::new(1.0, 1.0, 0.0), Vec3::new(1.0, 0.0, 0.0)),
+//             ],
+//         })),
+//         transform: Transform::from_xyz(-1.5, 0.0, 0.0),
+//         material: purple.clone(),
+//         ..default()
+//     });
+// }
 
 fn bootstrap_level() {}

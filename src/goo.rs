@@ -11,12 +11,16 @@ const RADIUS_MAX: f32 = 50.;
 const SCREEN_HEIGHT: f32 = 600.;
 const SCREEN_WIDTH: f32 = 800.;
 
-pub struct GooPlugin;
-impl Plugin for GooPlugin {
+pub struct BallPlugin;
+impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
-            .add_systems(Update, spawn_goo.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)))
+            // .add_systems(
+            //     Update,
+            //     spawn_goo_on_timer.run_if(in_state(GameState::Playing)),
+            // )
+            .add_systems(OnEnter(GameState::Playing), spawn_one_goo)
+            // .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)))
             .add_systems(Update, despawn.run_if(in_state(GameState::Playing)))
             .add_systems(Update, score.run_if(in_state(GameState::Playing)));
     }
@@ -31,25 +35,21 @@ struct Goo {
     created_at: f64,
 }
 
-fn spawn_goo(
-    mut commands: Commands,
+fn ball_bundle(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
-    mut spawn_timer: ResMut<SpawnTimer>,
+    x: f32,
+    y: f32,
+    radius: f32,
+) -> (
+    MaterialMesh2dBundle<ColorMaterial>,
+    RigidBody,
+    Collider,
+    Goo,
+    Name,
 ) {
-    spawn_timer.0.tick(time.delta());
-
-    if !spawn_timer.0.just_finished() {
-        return;
-    }
-
-    // let x = rand::random::<f32>() * SCREEN_WIDTH;
-    let x = 0.; // Debugging accretion
-    let y = 300.;
-    let radius = rand::random::<f32>() * (RADIUS_MAX - RADIUS_MIN) + RADIUS_MIN;
-
-    commands.spawn((
+    (
         MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(radius).into()).into(),
             material: materials.add(ColorMaterial::from(Color::PURPLE)),
@@ -65,7 +65,41 @@ fn spawn_goo(
         },
         // egui name
         Name::new("Goo"),
-    ));
+    )
+}
+
+fn spawn_goo_on_timer(
+    mut commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    time: Res<Time>,
+    mut spawn_timer: ResMut<SpawnTimer>,
+) {
+    spawn_timer.0.tick(time.delta());
+
+    if !spawn_timer.0.just_finished() {
+        return;
+    }
+
+    // let x = rand::random::<f32>() * SCREEN_WIDTH;
+    let x = 0.; // Debugging accretion
+    let y = 200.;
+    let radius = rand::random::<f32>() * (RADIUS_MAX - RADIUS_MIN) + RADIUS_MIN;
+
+    commands.spawn(ball_bundle(meshes, materials, time, x, y, radius));
+}
+
+fn spawn_one_goo(
+    mut commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    time: Res<Time>,
+) {
+    let x = 0.; // Debugging accretion
+    let y = 0.;
+    // let radius = RADIUS_MIN;
+    let radius = RADIUS_MAX * 2.;
+    commands.spawn(ball_bundle(meshes, materials, time, x, y, radius));
 }
 
 fn score(
@@ -109,11 +143,12 @@ fn score(
     }
 }
 
-fn move_goo(mut goo_query: Query<&mut Transform, With<Goo>>, time: Res<Time>) {
-    for mut goo_transform in &mut goo_query {
-        goo_transform.translation.y -= SPEED * time.delta_seconds();
-    }
-}
+// // TODO: instead of this, give it proper momentum on spawn
+// fn move_goo(mut goo_query: Query<&mut Transform, With<Goo>>, time: Res<Time>) {
+//     for mut goo_transform in &mut goo_query {
+//         goo_transform.translation.y -= SPEED * time.delta_seconds();
+//     }
+// }
 
 fn despawn(mut commands: Commands, goo_query: Query<(Entity, &Transform, &Goo)>, time: Res<Time>) {
     let now = time.elapsed_seconds_f64();

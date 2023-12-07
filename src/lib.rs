@@ -27,7 +27,7 @@ use bevy::prelude::*;
 use bevy_xpbd_2d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
 use construction::ConstructionPlugin;
 use destruction::DestructionPlugin;
-use goo::GooPlugin;
+use goo::BallPlugin;
 use level::LevelPlugin;
 use marbles::MarblesPlugin;
 use score::ScorePlugin;
@@ -58,7 +58,7 @@ impl Plugin for GamePlugin {
             PlayerPlugin,
             PhysicsPlugins::default(),
             LevelPlugin,
-            GooPlugin,
+            BallPlugin,
             MarblesPlugin,
             ConstructionPlugin,
             DestructionPlugin,

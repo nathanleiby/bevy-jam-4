@@ -36,9 +36,11 @@
 - Run WASM build
 - [..] add gamepad support
 
-###
+### Perf / Physics
 
 - the Goo balls are shaking up and down. I didn't notice when focused on player. is it physics glitching?
+- share refs to colors and meshes if helpful
+- explore scaling everything smaller and then adding more entities overall
 
 ### Learning Bevy
 

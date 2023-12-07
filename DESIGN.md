@@ -64,3 +64,13 @@ idea: temporary buffs, like N seconds of invincibility (plow through destruction
 some "wind" would be cool to keep the environment a bit more lively. (could simulate this with gravity changing directions? could spin the level?)
 should spawn purple Goo from various directions to make it more interesting.
 periodic "Goo Storm" warning that spawns a bunch of goo in increases the wind?? so you have to make it through that.
+
+--
+
+it's kinda like 1p air hockey .. using a circle to hit something toward a goal.
+but you are trying to survive attacks too
+the drifting 0 grav movement of paddle/striker and puck is also like air hockey.
+consider having fewer "balls"/"pucks" in play at a time to keep focus vs make it totally crazy? And give them more interesting behavior
+
+consider doubling down on air hockey imagery (make it look like an air hockey table fully) so people quickly grok the objective.
+(difference: are you defending a goal too?)

@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle, utils::HashSet};
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
-use crate::{level::Goal, marbles::Marble, GameState};
+use crate::{level::Goal, marbles::Marble, score::ScoreValue, GameState};
 
 // TODO: make this sort of param configurable from EGUI .. can I add some flags? or does it need to existing in Bevy land (like a Resource)?
 const SPEED: f32 = 150.;
@@ -15,18 +15,12 @@ pub struct GooPlugin;
 impl Plugin for GooPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
-            .insert_resource::<Score>(Score(0))
-            .register_type::<Score>() // for bevy-inspector-egui
             .add_systems(Update, spawn_goo.run_if(in_state(GameState::Playing)))
             .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)))
             .add_systems(Update, despawn.run_if(in_state(GameState::Playing)))
             .add_systems(Update, score.run_if(in_state(GameState::Playing)));
     }
 }
-
-#[derive(Reflect, Resource, Default, InspectorOptions)]
-#[reflect(Resource, InspectorOptions)]
-struct Score(usize);
 
 #[derive(Resource)]
 struct SpawnTimer(Timer);
@@ -81,7 +75,7 @@ fn score(
     query_goo: Query<Entity, With<Goo>>,
     query_goal: Query<Entity, With<Goal>>,
 
-    mut score: ResMut<Score>,
+    mut score: ResMut<ScoreValue>,
 ) {
     let mut goo_entity_ids: HashSet<u32> = HashSet::new();
     for entity in query_goo.iter() {

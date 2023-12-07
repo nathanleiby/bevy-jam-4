@@ -13,6 +13,7 @@ mod marbles;
 mod menu;
 mod pause;
 mod player;
+mod score;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -29,6 +30,7 @@ use destruction::DestructionPlugin;
 use goo::GooPlugin;
 use level::LevelPlugin;
 use marbles::MarblesPlugin;
+use score::ScorePlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -60,6 +62,7 @@ impl Plugin for GamePlugin {
             MarblesPlugin,
             ConstructionPlugin,
             DestructionPlugin,
+            ScorePlugin,
         ));
 
         // TODO: re-enable for moar debuggin

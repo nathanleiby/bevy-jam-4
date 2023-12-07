@@ -2,13 +2,19 @@
 
 ## sooner
 
+- [ ] get a WASM build working and ship to itch. MVP!
+- Get Win/loss conditions working
+
+  - [ ] game over: no active player orbs
+    - [ ] player health? Or just number of remaining orbs
+  - [ ] game win: push N purple balls into the goal area(s)
+
+- Get basic level design
+
 - [ ] basic gameplay
-  - [ ] spawn hero
-  - [ ] hero can grow or take damage
-    - [ ] construction goo makes a defense layer
-      - [ ] attaches to either: player OR goo that's attached to player
-    - [ ] destruction goo damages the hero
-- [ ] player health.
+  - [ ] construction goo makes a defense layer
+    - [ ] attaches to either: player OR goo that's attached to player
+  - [ ] destruction goo damages the hero
 - [ ] spawn
   - [..] destruction goo, that destroy existing circles
     - [ ] (and the joints)

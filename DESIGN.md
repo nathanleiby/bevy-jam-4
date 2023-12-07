@@ -52,3 +52,9 @@ Instead try: many small Goos. Big goo IS many small goos, and numbers could work
 
 accident: goo was carrying one of the purple balls - maybe objective is to push / shepherd objects around?
 seems fun with the physics. Fixed Joints maybe could be more like webs/nets
+
+would be cool if go had different properties, like sticky, bouncy, etc
+so you can wrap around target ball, or fling it more.
+maybe interesting physics applies to objects in env, rather than goo? so you could shepherd push a ball into a trampoline to shoot it into the "goal"
+
+idea: temporary buffs, like N seconds of invincibility (plow through destruction orbs!), increased speed, etc

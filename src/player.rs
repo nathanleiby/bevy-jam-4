@@ -3,8 +3,9 @@ use crate::loading::TextureAssets;
 use crate::marbles::Marble;
 use crate::GameState;
 use bevy::prelude::*;
-use bevy_xpbd_2d::components::LinearVelocity;
-use bevy_xpbd_2d::math::AdjustPrecision;
+use bevy::sprite::MaterialMesh2dBundle;
+use bevy_xpbd_2d::components::{Collider, LinearVelocity, RigidBody};
+use bevy_xpbd_2d::math::{AdjustPrecision, Scalar};
 
 pub struct PlayerPlugin;
 
@@ -20,13 +21,28 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
+const PLAYER_RADIUS: f32 = 50.0;
+
+fn spawn_player(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    let mesh = meshes.add(shape::Circle::new(PLAYER_RADIUS).into());
+    let material = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.9, 0.9)));
+    let spawn_position = Vec2::new(100., 100.0);
     commands
         .spawn((
-            SpriteBundle {
-                texture: textures.bevy.clone(),
-                transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
-                ..Default::default()
+            MaterialMesh2dBundle {
+                mesh: mesh.clone().into(),
+                material: material.clone(),
+                transform: Transform::from_xyz(spawn_position.x, spawn_position.y, 0.0),
+                ..default()
+            },
+            RigidBody::Dynamic,
+            Collider::ball(PLAYER_RADIUS as Scalar),
+            Marble {
+                is_player_controlled: true,
             },
             Name::new("Player"),
         ))

@@ -3,12 +3,7 @@
 use std::collections::HashSet; // TODO: explore Bevy's hashset too (https://docs.rs/bevy/latest/bevy/utils/type.StableHashSet.html)
 
 use crate::{fps::FpsPlugin, pause::PausePlugin};
-use bevy::{
-    ecs::system::EntityCommands,
-    prelude::*,
-    sprite::{Material2d, MaterialMesh2dBundle},
-    utils::HashMap,
-};
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
 pub struct MarblesPlugin;
@@ -17,8 +12,8 @@ impl Plugin for MarblesPlugin {
         app.add_plugins((PausePlugin, FpsPlugin))
             .add_event::<MergeEvent>()
             .insert_resource(ClearColor(Color::rgb(0.05, 0.05, 0.1)))
+            // TODO: refactor core physics into own plugin (SubstepCount, Gravity)
             .insert_resource(SubstepCount(6))
-            // .insert_resource(Gravity(Vector::NEG_Y * 1000.0))
             .insert_resource(Gravity(Vector::ZERO))
             .add_systems(Startup, setup)
             .add_systems(Update, movement)
@@ -29,7 +24,7 @@ impl Plugin for MarblesPlugin {
 }
 
 #[derive(Component)]
-struct Marble {
+pub struct Marble {
     is_player_controlled: bool,
 }
 
@@ -286,22 +281,4 @@ fn handle_merge_events(
             }
         }
     }
-
-    //     //         if let Some(e1) = marble_entities.get(&id1) {
-    //     //             if let Some(e2) = marble_entities.get(&id2) {
-    //     //                 connection.connections2.insert(lower, upper);
-
-    //     //                 let marble_material_green =
-    //     //                     materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
-    //     //                 for (entity, _, mut material) in query2.iter_mut() {
-    //     //                     if entity.index() == id1 || entity.index() == id2 {
-    //     //                         *material = marble_material_green.clone();
-    //     //                     }
-    //     //                 }
-    //     //                 println!(
-    //     //                     "Merging {:?} ({:?}) and {:?} ({:?})",
-    //     //                     contacts.entity1, id1, contacts.entity2, id2
-    //     //                 );
-    //     //             }
-    //     //         }
 }

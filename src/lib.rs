@@ -3,6 +3,7 @@
 mod actions;
 mod audio;
 mod config;
+mod destruction;
 mod fps;
 mod goo;
 mod loading;
@@ -22,6 +23,7 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_xpbd_2d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
+use destruction::DestructionPlugin;
 use goo::GooPlugin;
 use marbles::MarblesPlugin;
 
@@ -52,6 +54,7 @@ impl Plugin for GamePlugin {
             PhysicsPlugins::default(),
             GooPlugin,
             MarblesPlugin,
+            DestructionPlugin,
         ));
 
         // TODO: re-enable for moar debuggin

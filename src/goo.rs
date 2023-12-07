@@ -15,7 +15,8 @@ impl Plugin for GooPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
             .add_systems(Update, spawn_goo.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, despawn.run_if(in_state(GameState::Playing)));
     }
 }
 
@@ -24,7 +25,9 @@ struct SpawnTimer(Timer);
 
 // TODO: Can I put EGUI name on the Marker component instead of below?
 #[derive(Component)]
-struct Goo;
+struct Goo {
+    created_at: f64,
+}
 
 fn spawn_goo(
     mut commands: Commands,
@@ -41,7 +44,7 @@ fn spawn_goo(
 
     // let x = rand::random::<f32>() * SCREEN_WIDTH;
     let x = 0.; // Debugging accretion
-    let y = SCREEN_HEIGHT / 2.;
+    let y = 0.; // SCREEN_HEIGHT / 2.;
     let radius = rand::random::<f32>() * (RADIUS_MAX - RADIUS_MIN) + RADIUS_MIN;
 
     commands.spawn((
@@ -55,7 +58,9 @@ fn spawn_goo(
         RigidBody::Dynamic,
         Collider::ball(radius as Scalar),
         // marker
-        Goo,
+        Goo {
+            created_at: time.elapsed_seconds_f64(),
+        },
         // egui name
         Name::new("Goo"),
     ));
@@ -67,9 +72,23 @@ fn move_goo(mut goo_query: Query<&mut Transform, With<Goo>>, time: Res<Time>) {
     }
 }
 
-// fn despawn_goo() {
-//     todo!("despawn if goo moves off screen");
-// }
+fn despawn(mut commands: Commands, goo_query: Query<(Entity, &Transform, &Goo)>, time: Res<Time>) {
+    let now = time.elapsed_seconds_f64();
+
+    // despawn if older than 5 seconds
+    for (entity, _, goo) in goo_query.iter() {
+        if now - goo.created_at > 5. {
+            commands.entity(entity).despawn_recursive();
+        }
+    }
+
+    // despawn if goo moves off the screen (or outside arena due to physics bug)
+    // for (entity, transform, _) in goo_query.iter() {
+    //     if (transform.translation.y > SCREEN_HEIGHT ) < 0. {
+    //         commands.entity(entity).despawn_recursive();
+    //     }
+    // }
+}
 
 // fn cleanup() {
 //     todo!("despawn all goo if exiting Gameplay");

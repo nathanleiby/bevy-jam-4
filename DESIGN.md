@@ -23,3 +23,22 @@ How to determine who overwhelms?
 CHAT GPT weirdness:
 Accidents happen in the lab. You are a scientist, and you've accidentally spilled some goo on the floor.
 You must clean it up before it gets out of control!
+
+---
+
+Player
+
+Goo
+GooType::enum = Construction/Destruct, Grow/Shrink, slow/fast
+
+Goo interacts with player - attach or damage
+Goo interacts with Goo?
+
+---
+
+Cells
+
+Arena with walls (petri dish)
+Goo that divides, mitosis
+
+Entity counter in one corner

@@ -129,7 +129,7 @@ fn handle_merge_events(
 ) {
     let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
     for ev in merge_events.read() {
-        eprintln!("Entities merged: {:?}", ev);
+        info!("Entities merged: {:?}", ev);
 
         commands.spawn(
             FixedJoint::new(ev.0, ev.1).with_compliance(0.0001),

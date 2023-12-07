@@ -79,7 +79,7 @@ fn collide_and_maybe_merge(
             || (marble_entity_ids.contains(&id2) && destruction_goo_entity_ids.contains(&id1))
         {
             // destroy both
-            eprintln!("Destroying marble and destruction goo");
+            info!("Destroying marble and destruction goo");
             commands.entity(contacts.entity1).despawn_recursive();
             commands.entity(contacts.entity2).despawn_recursive();
         }

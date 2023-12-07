@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::{marbles::Marble};
+use crate::marbles::Marble;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
@@ -79,7 +79,7 @@ fn collide_and_destroy_both(
             || (marble_entity_ids.contains(&id2) && destruction_goo_entity_ids.contains(&id1))
         {
             // destroy both
-            eprintln!("Destroying marble and destruction goo");
+            info!("Destroying marble and destruction goo");
             commands.entity(contacts.entity1).despawn_recursive();
             commands.entity(contacts.entity2).despawn_recursive();
         }

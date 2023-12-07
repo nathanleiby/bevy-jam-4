@@ -2,8 +2,16 @@
 
 ## sooner
 
+- [ ] basic gameplay
+  - [ ] spawn hero
+  - [ ] hero can grow or take damage
+    - [ ] construction goo makes a defense layer
+      - [ ] attaches to either: player OR goo that's attached to player
+    - [ ] destruction goo damages the hero
+- [ ] player health.
 - [ ] spawn
-  - [ ] destruction goo, that destroy existing circles (and the joints)
+  - [..] destruction goo, that destroy existing circles
+    - [ ] (and the joints)
   - [ ] construction goo
 - [..] disappear over time
 - [ ] add player rotation, so circles accrete all over

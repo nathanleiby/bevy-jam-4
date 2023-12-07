@@ -11,7 +11,6 @@ impl Plugin for MarblesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((PausePlugin, FpsPlugin))
             .add_event::<MergeEvent>()
-            .insert_resource(ClearColor(Color::rgb(0.05, 0.05, 0.1)))
             // TODO: refactor core physics into own plugin (SubstepCount, Gravity)
             .insert_resource(SubstepCount(6))
             .insert_resource(Gravity(Vector::ZERO))
@@ -41,57 +40,6 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let square_sprite = Sprite {
-        color: Color::rgb(0.7, 0.7, 0.8),
-        custom_size: Some(Vec2::splat(50.0)),
-        ..default()
-    };
-
-    // Ceiling
-    commands.spawn((
-        SpriteBundle {
-            sprite: square_sprite.clone(),
-            transform: Transform::from_xyz(0.0, 50.0 * 6.0, 0.0)
-                .with_scale(Vec3::new(20.0, 1.0, 1.0)),
-            ..default()
-        },
-        RigidBody::Static,
-        Collider::cuboid(50.0, 50.0),
-    ));
-    // Floor
-    commands.spawn((
-        SpriteBundle {
-            sprite: square_sprite.clone(),
-            transform: Transform::from_xyz(0.0, -50.0 * 6.0, 0.0)
-                .with_scale(Vec3::new(20.0, 1.0, 1.0)),
-            ..default()
-        },
-        RigidBody::Static,
-        Collider::cuboid(50.0, 50.0),
-    ));
-    // Left wall
-    commands.spawn((
-        SpriteBundle {
-            sprite: square_sprite.clone(),
-            transform: Transform::from_xyz(-50.0 * 9.5, 0.0, 0.0)
-                .with_scale(Vec3::new(1.0, 11.0, 1.0)),
-            ..default()
-        },
-        RigidBody::Static,
-        Collider::cuboid(50.0, 50.0),
-    ));
-    // Right wall
-    commands.spawn((
-        SpriteBundle {
-            sprite: square_sprite,
-            transform: Transform::from_xyz(50.0 * 9.5, 0.0, 0.0)
-                .with_scale(Vec3::new(1.0, 11.0, 1.0)),
-            ..default()
-        },
-        RigidBody::Static,
-        Collider::cuboid(50.0, 50.0),
-    ));
-
     let marble_mesh = meshes.add(shape::Circle::new(MARBLE_RADIUS).into());
     let marble_material_blue = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.7, 0.9)));
     let marble_material_purple = materials.add(ColorMaterial::from(Color::rgb(0.6, 0.2, 0.6)));
@@ -131,55 +79,16 @@ fn setup(
         }
     }
 
-    // let epsilon = 0.; // TODO: should we use?
-    // let object1radius = marble_radius;
-    // let object2radius = marble_radius;
-    // let offset = object1radius + object2radius + epsilon;
-    // commands.spawn(
-    //     FixedJoint::new(marble_entities[0], marble_entities[2])
-    //         .with_local_anchor_1(Vector::X * MARBLE_RADIUS) // collision normal (unit vector) times radius
-    //         .with_local_anchor_2(-Vector::X * MARBLE_RADIUS), // collision normal (unit vector) times radius
-    //                                                           // .with_rest_length(2.5 * MARBLE_RADIUS)
-    //                                                           // .with_compliance(0.2),
-    // );
-    // commands.spawn(
-    //     FixedJoint::new(marble_entities[1], marble_entities[2])
-    //         .with_local_anchor_1(Vector::X * MARBLE_RADIUS) // collision normal (unit vector) times radius
-    //         .with_local_anchor_2(-Vector::X * MARBLE_RADIUS), // collision normal (unit vector) times radius
-    //                                                           // .with_rest_length(2.5 * MARBLE_RADIUS)
-    //                                                           // .with_compliance(0.2),
-    // );
-    // commands.spawn(
-    //     FixedJoint::new(marble_entities[2], marble_entities[3])
-    //         .with_local_anchor_1(Vector::X * MARBLE_RADIUS) // collision normal (unit vector) times radius
-    //         .with_local_anchor_2(-Vector::X * MARBLE_RADIUS), // collision normal (unit vector) times radius
-    //                                                           // .with_rest_length(2.5 * MARBLE_RADIUS)
-    //                                                           // .with_compliance(0.2),
-    // );
-
-    // TODO: Is this a good way to track this state?
     commands.spawn(MarbleConnections {
         connections: HashSet::new(),
     });
 }
-
-// fn spawn_joint(mut commands: Commands, e1: Entity, e2: Entity, midpoint: Vec2) {
-//     commands.spawn(
-//         FixedJoint::new(e1, e2)
-//             .with_local_anchor_1(midpoint) // collision normal (unit vector) times radius
-//             .with_local_anchor_2(Vector::X) // collision normal (unit vector) times radius
-//             // .with_rest_length(2.5 * MARBLE_RADIUS)
-//             .with_compliance(0.2),
-//     );
-// }
 
 fn movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&Marble, &mut LinearVelocity), With<Marble>>,
 ) {
-    // TODO: Only move marbles that are connected to player
-
     // Precision is adjusted so that the example works with
     // both the `f32` and `f64` features. Otherwise you don't need this.
     let delta_time = time.delta_seconds_f64().adjust_precision();
@@ -204,17 +113,6 @@ fn movement(
         }
     }
 }
-
-// fn print_collisions(mut collision_event_reader: EventReader<Collision>) {
-//     for Collision(contacts) in collision_event_reader.read() {
-//         println!(
-//             "Entities {:?} and {:?} are colliding",
-//             contacts.entity1, contacts.entity2,
-//         );
-//     }
-// }
-
-// let merge_table: HashMap<(usize, usize), bool> = HashMap::new();
 
 #[derive(Event, Debug)]
 struct MergeEvent(Entity, Entity);

@@ -2,29 +2,29 @@
 
 use std::collections::HashSet;
 
-use crate::{fps::FpsPlugin, marbles::Marble, pause::PausePlugin};
+use crate::marbles::Marble;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
-pub struct DestructionPlugin;
-impl Plugin for DestructionPlugin {
+pub struct ConstructionPlugin;
+impl Plugin for ConstructionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, collide_and_destroy_both);
+            .add_systems(Update, collide_and_maybe_merge);
     }
 }
 
 #[derive(Component)]
 struct DestructionGoo {}
 
-const DESTRUCTION_GOO_RADIUS: f32 = 3.0;
+const CONSTRUCTION_GOO_RADIUS: f32 = 3.0;
 
 fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let marble_mesh = meshes.add(shape::Circle::new(DESTRUCTION_GOO_RADIUS).into());
+    let marble_mesh = meshes.add(shape::Circle::new(CONSTRUCTION_GOO_RADIUS).into());
     let material_red = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.1, 0.1)));
 
     let marble_scale = 10;
@@ -36,14 +36,14 @@ fn setup(
                     mesh: marble_mesh.clone().into(),
                     material: material_red.clone(),
                     transform: Transform::from_xyz(
-                        x as f32 * 2.5 * DESTRUCTION_GOO_RADIUS,
-                        y as f32 * 2.5 * DESTRUCTION_GOO_RADIUS + 100.,
+                        x as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS,
+                        y as f32 * 2.5 * CONSTRUCTION_GOO_RADIUS + 100.,
                         0.0,
                     ),
                     ..default()
                 },
                 RigidBody::Dynamic,
-                Collider::ball(DESTRUCTION_GOO_RADIUS as Scalar),
+                Collider::ball(CONSTRUCTION_GOO_RADIUS as Scalar),
                 DestructionGoo {},
                 Name::new("marble"),
             ));
@@ -51,7 +51,7 @@ fn setup(
     }
 }
 
-fn collide_and_destroy_both(
+fn collide_and_maybe_merge(
     mut commands: Commands,
     mut collision_event_reader: EventReader<Collision>,
     query: Query<Entity, With<DestructionGoo>>,

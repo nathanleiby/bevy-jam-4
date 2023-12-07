@@ -3,9 +3,11 @@
 mod actions;
 mod audio;
 mod config;
+mod construction;
 mod destruction;
 mod fps;
 mod goo;
+mod level;
 mod loading;
 mod marbles;
 mod menu;
@@ -23,8 +25,10 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_xpbd_2d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
+use construction::ConstructionPlugin;
 use destruction::DestructionPlugin;
 use goo::GooPlugin;
+use level::LevelPlugin;
 use marbles::MarblesPlugin;
 
 // This example game uses States to separate logic
@@ -52,8 +56,10 @@ impl Plugin for GamePlugin {
             InternalAudioPlugin,
             PlayerPlugin,
             PhysicsPlugins::default(),
+            LevelPlugin,
             GooPlugin,
             MarblesPlugin,
+            ConstructionPlugin,
             DestructionPlugin,
         ));
 

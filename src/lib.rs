@@ -68,6 +68,7 @@ impl Plugin for GamePlugin {
         //     app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
         // }
 
-        app.add_plugins(PhysicsDebugPlugin::default());
+        // Toggle to show/hide physics debugging
+        // app.add_plugins(PhysicsDebugPlugin::default());
     }
 }

@@ -15,7 +15,7 @@ impl Plugin for ConstructionPlugin {
 }
 
 #[derive(Component)]
-struct DestructionGoo {}
+struct ConstructionGoo {}
 
 const CONSTRUCTION_GOO_RADIUS: f32 = 3.0;
 
@@ -44,8 +44,8 @@ fn setup(
                 },
                 RigidBody::Dynamic,
                 Collider::ball(CONSTRUCTION_GOO_RADIUS as Scalar),
-                DestructionGoo {},
-                Name::new("marble"),
+                ConstructionGoo {},
+                Name::new("Construction Goo"),
             ));
         }
     }
@@ -54,7 +54,7 @@ fn setup(
 fn collide_and_maybe_merge(
     mut commands: Commands,
     mut collision_event_reader: EventReader<Collision>,
-    query: Query<Entity, With<DestructionGoo>>,
+    query: Query<Entity, With<ConstructionGoo>>,
     query2: Query<Entity, With<Marble>>,
 ) {
     // marbles
@@ -79,7 +79,7 @@ fn collide_and_maybe_merge(
             || (marble_entity_ids.contains(&id2) && destruction_goo_entity_ids.contains(&id1))
         {
             // destroy both
-            info!("Destroying marble and destruction goo");
+            debug!("Destroying marble and destruction goo");
             commands.entity(contacts.entity1).despawn_recursive();
             commands.entity(contacts.entity2).despawn_recursive();
         }

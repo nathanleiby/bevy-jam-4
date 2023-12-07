@@ -1,7 +1,8 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle, utils::HashSet};
+use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
-use crate::GameState;
+use crate::{level::Goal, marbles::Marble, GameState};
 
 // TODO: make this sort of param configurable from EGUI .. can I add some flags? or does it need to existing in Bevy land (like a Resource)?
 const SPEED: f32 = 150.;
@@ -14,11 +15,18 @@ pub struct GooPlugin;
 impl Plugin for GooPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
+            .insert_resource::<Score>(Score(0))
+            .register_type::<Score>() // for bevy-inspector-egui
             .add_systems(Update, spawn_goo.run_if(in_state(GameState::Playing)))
             .add_systems(Update, move_goo.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, despawn.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, despawn.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, score.run_if(in_state(GameState::Playing)));
     }
 }
+
+#[derive(Reflect, Resource, Default, InspectorOptions)]
+#[reflect(Resource, InspectorOptions)]
+struct Score(usize);
 
 #[derive(Resource)]
 struct SpawnTimer(Timer);
@@ -66,6 +74,49 @@ fn spawn_goo(
     ));
 }
 
+fn score(
+    mut commands: Commands,
+    mut collision_event_reader: EventReader<Collision>,
+
+    query_goo: Query<Entity, With<Goo>>,
+    query_goal: Query<Entity, With<Goal>>,
+
+    mut score: ResMut<Score>,
+) {
+    let mut goo_entity_ids: HashSet<u32> = HashSet::new();
+    for entity in query_goo.iter() {
+        goo_entity_ids.insert(entity.index());
+    }
+
+    let mut goal_entity_id = 0;
+    // assign query result to player_entity_id if it exists..
+    if let Ok(result) = query_goal.get_single() {
+        goal_entity_id = result.index();
+    } else {
+        return;
+        // Goal not yet loaded
+    }
+
+    // let mut marble_entities: HashMap<u32, Entity> = HashMap::new();
+    for Collision(contacts) in collision_event_reader.read() {
+        let id1 = contacts.entity1.index();
+        let id2 = contacts.entity2.index();
+
+        // check if one is a goo and the other is the Goal
+        if goo_entity_ids.contains(&id1) && id2 == goal_entity_id
+            || goo_entity_ids.contains(&id2) && id1 == goal_entity_id
+        {
+            info!("Score!");
+            score.0 += 1;
+            if id1 == goal_entity_id {
+                commands.entity(contacts.entity2).despawn_recursive();
+            } else {
+                commands.entity(contacts.entity1).despawn_recursive();
+            }
+        }
+    }
+}
+
 fn move_goo(mut goo_query: Query<&mut Transform, With<Goo>>, time: Res<Time>) {
     for mut goo_transform in &mut goo_query {
         goo_transform.translation.y -= SPEED * time.delta_seconds();
@@ -75,9 +126,9 @@ fn move_goo(mut goo_query: Query<&mut Transform, With<Goo>>, time: Res<Time>) {
 fn despawn(mut commands: Commands, goo_query: Query<(Entity, &Transform, &Goo)>, time: Res<Time>) {
     let now = time.elapsed_seconds_f64();
 
-    // despawn if older than 5 seconds
+    // despawn if old enough
     for (entity, _, goo) in goo_query.iter() {
-        if now - goo.created_at > 5. {
+        if now - goo.created_at > 10. {
             commands.entity(entity).despawn_recursive();
         }
     }

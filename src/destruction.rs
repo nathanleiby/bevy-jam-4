@@ -2,7 +2,10 @@
 
 use std::collections::HashSet;
 
-use crate::marbles::Marble;
+use crate::{
+    marbles::Marble,
+    player::{self, Player},
+};
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
@@ -45,7 +48,7 @@ fn setup(
                 RigidBody::Dynamic,
                 Collider::ball(DESTRUCTION_GOO_RADIUS as Scalar),
                 DestructionGoo {},
-                Name::new("marble"),
+                Name::new("Destruction Goo"),
             ));
         }
     }
@@ -56,6 +59,7 @@ fn collide_and_destroy_both(
     mut collision_event_reader: EventReader<Collision>,
     query: Query<Entity, With<DestructionGoo>>,
     query2: Query<Entity, With<Marble>>,
+    query3: Query<Entity, With<Player>>,
 ) {
     // marbles
     let mut marble_entity_ids: HashSet<u32> = HashSet::new();
@@ -69,6 +73,16 @@ fn collide_and_destroy_both(
         destruction_goo_entity_ids.insert(entity.index());
     }
 
+    // player
+    let mut player_entity_id = 0;
+    // assign query result to player_entity_id if it exists..
+    if let Ok(result) = query3.get_single() {
+        player_entity_id = result.index();
+    } else {
+        return;
+        // player not yet loaded
+    }
+
     // let mut marble_entities: HashMap<u32, Entity> = HashMap::new();
     for Collision(contacts) in collision_event_reader.read() {
         let id1 = contacts.entity1.index();
@@ -78,8 +92,13 @@ fn collide_and_destroy_both(
         if (marble_entity_ids.contains(&id1) && destruction_goo_entity_ids.contains(&id2))
             || (marble_entity_ids.contains(&id2) && destruction_goo_entity_ids.contains(&id1))
         {
+            // don't destroy player proper, for now..
+            if id1 == player_entity_id || id2 == player_entity_id {
+                continue;
+            }
+
             // destroy both
-            info!("Destroying marble and destruction goo");
+            debug!("Destroying marble and destruction goo");
             commands.entity(contacts.entity1).despawn_recursive();
             commands.entity(contacts.entity2).despawn_recursive();
         }

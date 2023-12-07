@@ -8,6 +8,9 @@ impl Plugin for LevelPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct Goal {}
+
 fn setup(mut commands: Commands) {
     let square_sprite = Sprite {
         color: Color::rgb(0.7, 0.7, 0.8),
@@ -58,5 +61,24 @@ fn setup(mut commands: Commands) {
         },
         RigidBody::Static,
         Collider::cuboid(50.0, 50.0),
+    ));
+
+    let goal_sprite = Sprite {
+        color: Color::rgb(0.2, 0.02, 0.8),
+        custom_size: Some(Vec2::splat(50.0)),
+        ..default()
+    };
+
+    // right goal
+    commands.spawn((
+        SpriteBundle {
+            sprite: goal_sprite.clone(),
+            transform: Transform::from_xyz(50.0 * 9.5, 0.0, 0.0)
+                .with_scale(Vec3::new(2.0, 2.0, 1.0)),
+            ..default()
+        },
+        RigidBody::Static,
+        Collider::cuboid(50.0, 50.0),
+        Goal {},
     ));
 }

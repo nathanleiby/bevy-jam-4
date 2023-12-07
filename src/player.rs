@@ -41,11 +41,11 @@ fn spawn_player(
             },
             RigidBody::Dynamic,
             Collider::ball(PLAYER_RADIUS as Scalar),
-            Marble {
-                is_player_controlled: true,
-            },
             Name::new("Player"),
         ))
+        .insert(Marble {
+            is_player_controlled: true,
+        })
         .insert(Player);
 }
 

@@ -103,6 +103,10 @@ fn setup_level_three() {
     todo!("big ball and construction goo")
 }
 
+fn setup_level_four() {
+    todo!("don't die! explain destruction goo")
+}
+
 // TODO: draw a grid on top of 2d UI, for debugging. e.g. so i can easily figure out 100px offsets
 // fn debug_grid(
 //     mut commands: Commands,

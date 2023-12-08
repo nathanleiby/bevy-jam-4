@@ -5,6 +5,8 @@ pub enum GameControl {
     Down,
     Left,
     Right,
+    RotateLeft,
+    RotateRight,
 }
 
 impl GameControl {
@@ -21,6 +23,12 @@ impl GameControl {
             }
             GameControl::Right => {
                 keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right)
+            }
+            GameControl::RotateLeft => {
+                keyboard_input.pressed(KeyCode::Q) || keyboard_input.pressed(KeyCode::J)
+            }
+            GameControl::RotateRight => {
+                keyboard_input.pressed(KeyCode::E) || keyboard_input.pressed(KeyCode::L)
             }
         }
     }

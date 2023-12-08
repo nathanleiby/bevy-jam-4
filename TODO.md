@@ -34,7 +34,7 @@
   - push a big (heavy) purple ball to the goal. (you're small! accrete goo to make it easier)
   - don't die (red goo hurts)
 - Run WASM build
-- [..] add gamepad support
+- [ ] add gamepad support - abstraction lives in game_control
 
 ### Perf / Physics
 

@@ -153,12 +153,12 @@ fn score(
 fn despawn(mut commands: Commands, goo_query: Query<(Entity, &Transform, &Goo)>, time: Res<Time>) {
     let now = time.elapsed_seconds_f64();
 
-    // despawn if old enough
-    for (entity, _, goo) in goo_query.iter() {
-        if now - goo.created_at > 10. {
-            commands.entity(entity).despawn_recursive();
-        }
-    }
+    // // despawn if old enough
+    // for (entity, _, goo) in goo_query.iter() {
+    //     if now - goo.created_at > 10. {
+    //         commands.entity(entity).despawn_recursive();
+    //     }
+    // }
 
     // despawn if goo moves off the screen (or outside arena due to physics bug)
     // for (entity, transform, _) in goo_query.iter() {

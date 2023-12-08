@@ -47,40 +47,38 @@ fn setup(
     // let marble_material_purple = materials.add(ColorMaterial::from(Color::rgb(0.6, 0.2, 0.6)));
     // let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
 
-    let marble_scale = 5;
+    let marble_scale = 3;
     let mut marble_entities: Vec<Entity> = Vec::new();
     let mut idx = 0;
     // Spawn stacks of marbles
-    // for x in -marble_scale..marble_scale {
-    //     for y in -marble_scale..marble_scale {
-    let x = 0;
-    let y = 0;
-    let marble = commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: marble_mesh.clone().into(),
-            material: match idx {
-                // 0 => marble_material_purple.clone(),
-                // 1..=3 => marble_material_green.clone(),
-                _ => marble_material_blue.clone(),
-            },
-            transform: Transform::from_xyz(
-                x as f32 * 2.5 * MARBLE_RADIUS - 100.,
-                y as f32 * 2.5 * MARBLE_RADIUS,
-                0.0,
-            ),
-            ..default()
-        },
-        RigidBody::Dynamic,
-        Collider::ball(MARBLE_RADIUS as Scalar),
-        Marble {
-            is_player_controlled: false,
-        },
-        Name::new("marble"),
-    ));
-    marble_entities.push(marble.id());
-    idx += 1;
-    //     }
-    // }
+    for x in -marble_scale..marble_scale {
+        for y in -marble_scale..marble_scale {
+            let marble = commands.spawn((
+                MaterialMesh2dBundle {
+                    mesh: marble_mesh.clone().into(),
+                    material: match idx {
+                        // 0 => marble_material_purple.clone(),
+                        // 1..=3 => marble_material_green.clone(),
+                        _ => marble_material_blue.clone(),
+                    },
+                    transform: Transform::from_xyz(
+                        x as f32 * 2.5 * MARBLE_RADIUS - 100.,
+                        y as f32 * 2.5 * MARBLE_RADIUS,
+                        0.0,
+                    ),
+                    ..default()
+                },
+                RigidBody::Dynamic,
+                Collider::ball(MARBLE_RADIUS as Scalar),
+                Marble {
+                    is_player_controlled: false,
+                },
+                Name::new("marble"),
+            ));
+            marble_entities.push(marble.id());
+            idx += 1;
+        }
+    }
 
     commands.spawn(MarbleConnections {
         connections: HashSet::new(),

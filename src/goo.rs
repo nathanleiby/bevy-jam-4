@@ -95,7 +95,7 @@ fn spawn_one_goo(
     materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
 ) {
-    let x = 0.; // Debugging accretion
+    let x = 150.;
     let y = 0.;
     // let radius = RADIUS_MIN;
     let radius = RADIUS_MAX * 2.;

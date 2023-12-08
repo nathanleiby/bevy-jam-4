@@ -6,6 +6,7 @@ use crate::{fps::FpsPlugin, pause::PausePlugin};
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::{math::*, prelude::*};
 
+// TODO: Merge this and ConstructionGoo into one thing?
 pub struct MarblesPlugin;
 impl Plugin for MarblesPlugin {
     fn build(&self, app: &mut App) {
@@ -18,8 +19,8 @@ impl Plugin for MarblesPlugin {
             .add_systems(Startup, setup)
             // .add_systems(Update, movement)
             // .add_systems(Update, print_collisions)
-            .add_systems(FixedUpdate, merge)
-            .add_systems(FixedUpdate, handle_merge_events);
+            .add_systems(Update, merge)
+            .add_systems(Update, handle_merge_events);
     }
 }
 
@@ -38,47 +39,48 @@ const MARBLE_RADIUS: f32 = 5.0;
 
 fn setup(
     mut commands: Commands,
-    // mut materials: ResMut<Assets<ColorMaterial>>,
-    // mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    // let marble_mesh = meshes.add(shape::Circle::new(MARBLE_RADIUS).into());
-    // let marble_material_blue = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.7, 0.9)));
+    let marble_mesh = meshes.add(shape::Circle::new(MARBLE_RADIUS).into());
+    let marble_material_blue = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.7, 0.9)));
     // let marble_material_purple = materials.add(ColorMaterial::from(Color::rgb(0.6, 0.2, 0.6)));
     // let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
 
-    // let marble_scale = 10;
-    // let mut marble_entities: Vec<Entity> = Vec::new();
-    // let mut idx = 0;
-    // // // Spawn stacks of marbles
-    // // for x in -marble_scale..marble_scale {
-    // //     for y in -marble_scale..marble_scale {
-    // //         let marble = commands.spawn((
-    // //             MaterialMesh2dBundle {
-    // //                 mesh: marble_mesh.clone().into(),
-    // //                 material: match idx {
-    // //                     0 => marble_material_purple.clone(),
-    // //                     1..=3 => marble_material_green.clone(),
-    // //                     _ => marble_material_blue.clone(),
-    // //                 },
-    // //                 transform: Transform::from_xyz(
-    // //                     x as f32 * 2.5 * MARBLE_RADIUS,
-    // //                     y as f32 * 2.5 * MARBLE_RADIUS,
-    // //                     0.0,
-    // //                 ),
-    // //                 ..default()
-    // //             },
-    // //             RigidBody::Dynamic,
-    // //             Collider::ball(MARBLE_RADIUS as Scalar),
-    // //             Marble {
-    // //                 // start with just one marble that's player controlled
-    // //                 is_player_controlled: x == -marble_scale && y == -marble_scale,
-    // //             },
-    // //             Name::new("marble"),
-    // //         ));
-    // //         marble_entities.push(marble.id());
-    // //         idx += 1;
-    // //     }
-    // // }
+    let marble_scale = 5;
+    let mut marble_entities: Vec<Entity> = Vec::new();
+    let mut idx = 0;
+    // Spawn stacks of marbles
+    // for x in -marble_scale..marble_scale {
+    //     for y in -marble_scale..marble_scale {
+    let x = 0;
+    let y = 0;
+    let marble = commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: marble_mesh.clone().into(),
+            material: match idx {
+                // 0 => marble_material_purple.clone(),
+                // 1..=3 => marble_material_green.clone(),
+                _ => marble_material_blue.clone(),
+            },
+            transform: Transform::from_xyz(
+                x as f32 * 2.5 * MARBLE_RADIUS - 100.,
+                y as f32 * 2.5 * MARBLE_RADIUS,
+                0.0,
+            ),
+            ..default()
+        },
+        RigidBody::Dynamic,
+        Collider::ball(MARBLE_RADIUS as Scalar),
+        Marble {
+            is_player_controlled: false,
+        },
+        Name::new("marble"),
+    ));
+    marble_entities.push(marble.id());
+    idx += 1;
+    //     }
+    // }
 
     commands.spawn(MarbleConnections {
         connections: HashSet::new(),
@@ -91,14 +93,19 @@ struct MergeEvent(Entity, Entity);
 fn merge(
     mut collision_event_reader: EventReader<Collision>,
     mut marble_connections: Query<&mut MarbleConnections>,
-    query: Query<Entity, With<Marble>>,
+    query: Query<(Entity, &Marble), With<Marble>>,
     mut merge_events: EventWriter<MergeEvent>,
 ) {
     let mut connection = marble_connections.single_mut();
 
+    let mut playerControlledIDs: HashSet<u32> = HashSet::new();
     let mut marbleEntityIDs: HashSet<u32> = HashSet::new();
-    for entity in query.iter() {
+    for (entity, marble) in query.iter() {
         marbleEntityIDs.insert(entity.index());
+        if marble.is_player_controlled {
+            // println!("Player controlled marble: {:?}", entity.index());
+            playerControlledIDs.insert(entity.index());
+        }
     }
 
     // let mut marble_entities: HashMap<u32, Entity> = HashMap::new();
@@ -111,12 +118,18 @@ fn merge(
             continue;
         }
 
+        // check if at least oen is player controlled currently
+        if !(playerControlledIDs.contains(&id1) || playerControlledIDs.contains(&id2)) {
+            continue;
+        }
+
         // insert with lower ID pointing to higher ID
         let (lower, upper) = if id1 < id2 { (id1, id2) } else { (id2, id1) };
 
         let newly_added = connection.connections.insert((lower, upper));
         if newly_added {
             merge_events.send(MergeEvent(contacts.entity1, contacts.entity2));
+        } else {
         }
     }
 }
@@ -130,8 +143,6 @@ fn handle_merge_events(
 ) {
     let marble_material_green = materials.add(ColorMaterial::from(Color::rgb(0.2, 0.9, 0.2)));
     for ev in merge_events.read() {
-        debug!("Entities merged: {:?}", ev);
-
         commands.spawn(
             FixedJoint::new(ev.0, ev.1).with_compliance(0.0001),
             // with_compliance seems necessary to have a stable physics simulation.
@@ -140,11 +151,7 @@ fn handle_merge_events(
 
         // Look for a matching marble from the query
         for (entity, mut marble, mut material) in query.iter_mut() {
-            if entity == ev.0 {
-                *material = marble_material_green.clone();
-                marble.is_player_controlled = true;
-            }
-            if entity == ev.1 {
+            if entity.index() == ev.0.index() || entity.index() == ev.1.index() {
                 *material = marble_material_green.clone();
                 marble.is_player_controlled = true;
             }

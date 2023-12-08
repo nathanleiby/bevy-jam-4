@@ -21,7 +21,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-const PLAYER_RADIUS: f32 = 25.0;
+const PLAYER_RADIUS: f32 = 10.0;
 
 fn spawn_player(
     mut commands: Commands,
@@ -30,23 +30,54 @@ fn spawn_player(
 ) {
     let mesh = meshes.add(shape::Circle::new(PLAYER_RADIUS).into());
     let material = materials.add(ColorMaterial::from(Color::rgb(0.9, 0.9, 0.9)));
-    let spawn_position = Vec2::new(-300., 0.);
-    commands
+
+    // let mesh2 = meshes.add(shape::Circle::new(PLAYER_RADIUS + 5.).into());
+    // let material2 = materials.add(ColorMaterial::from(Color::rgb(0., 0.8, 0.8)));
+
+    let spawn_position = Vec3::new(-350., 0., 0.);
+
+    let marble = commands
         .spawn((
             MaterialMesh2dBundle {
                 mesh: mesh.clone().into(),
                 material: material.clone(),
-                transform: Transform::from_xyz(spawn_position.x, spawn_position.y, 0.0),
+                transform: Transform::from_translation(spawn_position),
                 ..default()
             },
             RigidBody::Dynamic,
             Collider::ball(PLAYER_RADIUS as Scalar),
-            Name::new("Player"),
+            Marble {
+                is_player_controlled: true,
+            },
+            Name::new("player"),
         ))
-        .insert(Marble {
-            is_player_controlled: true,
-        })
         .insert(Player);
+
+    // commands
+    //     .spawn((
+    //         MaterialMesh2dBundle {
+    //             mesh: mesh.clone().into(),
+    //             material: material.clone(),
+    //             transform: Transform::from_xyz(spawn_position.x, spawn_position.y, 0.0),
+    //             ..default()
+    //         },
+    //         RigidBody::Dynamic,
+    //         Collider::ball(PLAYER_RADIUS as Scalar),
+    //         Name::new("Player"),
+    //         Marble {
+    //             is_player_controlled: true,
+    //         },
+    //     ))
+    //     .insert(Player)
+    //     .with_children(|parent| {
+    //         // TODO: Give it a better glow effect at some point. Emphasize the player. Right now it's flashing due to z-index fighting
+    //         parent.spawn(MaterialMesh2dBundle {
+    //             mesh: mesh2.clone().into(),
+    //             material: material2.clone(),
+    //             transform: Transform::from_xyz(0., 0., 0.0),
+    //             ..default()
+    //         });
+    //     });
 }
 
 const SPEED: f32 = 2000.0; // 500 to 2500

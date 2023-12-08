@@ -89,6 +89,20 @@ fn setup(mut commands: Commands) {
     ));
 }
 
+fn setup_level_one() {
+    todo!("small ball")
+    // RADIUS_MIN
+}
+
+fn setup_level_two() {
+    todo!("big ball") // can push it but soooo slow to do so
+                      // RADIUS_MAX * 2.
+}
+
+fn setup_level_three() {
+    todo!("big ball and construction goo")
+}
+
 // TODO: draw a grid on top of 2d UI, for debugging. e.g. so i can easily figure out 100px offsets
 // fn debug_grid(
 //     mut commands: Commands,
